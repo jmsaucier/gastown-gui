@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { execGT } from '@/lib/cli-wrapper';
+import { execGT, execGTJSON } from '@/lib/cli-wrapper';
 import { getCachedOrExecute, CACHE_TTL, invalidateCachePrefix } from '@/lib/cache';
 import type { Crew } from '@/types';
 
@@ -14,21 +14,8 @@ export async function GET(request: NextRequest) {
     const crews = await getCachedOrExecute<Crew[]>(
       'crews',
       async () => {
-        const output = await execGT(['crew', 'list']);
-        
-        const crews: Crew[] = [];
-        const lines = output.split('\n').filter(line => line.trim());
-        
-        for (const line of lines) {
-          const match = line.match(/^(\S+)/);
-          if (match) {
-            crews.push({
-              name: match[1],
-              members: [],
-            });
-          }
-        }
-        
+        // Use JSON output
+        const crews = await execGTJSON<Crew[]>(['crew', 'list']);
         return crews;
       },
       CACHE_TTL.rigs

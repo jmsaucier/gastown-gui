@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { execGH } from '@/lib/cli-wrapper';
+import { execGHJSON } from '@/lib/cli-wrapper';
 import { getCachedOrExecute, CACHE_TTL } from '@/lib/cache';
 
 export async function GET(request: NextRequest) {
@@ -14,8 +14,7 @@ export async function GET(request: NextRequest) {
       async () => {
         const args = ['repo', 'list', '--json', 'name,owner,url'];
         
-        const output = await execGH(args);
-        const data = JSON.parse(output);
+        const data = await execGHJSON<any[]>(args);
         
         return data;
       },

@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { execBD, execGT } from '@/lib/cli-wrapper';
+import { execBD, execBDJSON, execGT } from '@/lib/cli-wrapper';
 import { getCachedOrExecute, CACHE_TTL, invalidateCachePrefix } from '@/lib/cache';
 import type { WorkItem } from '@/types';
 
@@ -23,26 +23,8 @@ export async function GET(request: NextRequest) {
         const args = ['list'];
         if (status) args.push('--status', status);
         
-        const output = await execBD(args, rig ? { cwd: rig } : undefined);
-        
-        // Parse work list output
-        const items: WorkItem[] = [];
-        const lines = output.split('\n').filter(line => line.trim());
-        
-        for (const line of lines) {
-          // Simple parsing - adjust based on actual bd output format
-          const match = line.match(/^(\w+-\d+)\s+(.+)$/);
-          if (match) {
-            items.push({
-              id: match[1],
-              title: match[2],
-              status: 'open',
-              created: new Date().toISOString(),
-              type: 'bead',
-            });
-          }
-        }
-        
+        // Use JSON output
+        const items = await execBDJSON<WorkItem[]>(args, rig ? { cwd: rig } : undefined);
         return items;
       },
       CACHE_TTL.convoys

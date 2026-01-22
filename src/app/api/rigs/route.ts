@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { execGT } from '@/lib/cli-wrapper';
+import { execGT, execGTJSON } from '@/lib/cli-wrapper';
 import { getCachedOrExecute, CACHE_TTL, invalidateCachePrefix } from '@/lib/cache';
 import type { Rig } from '@/types';
 
@@ -14,24 +14,31 @@ export async function GET(request: NextRequest) {
     const rigs = await getCachedOrExecute<Rig[]>(
       'rigs',
       async () => {
-        const output = await execGT(['rig', 'list']);
-        
-        // Parse rig list output
-        const rigs: Rig[] = [];
-        const lines = output.split('\n').filter(line => line.trim());
-        
-        for (const line of lines) {
-          const match = line.match(/^(\S+)\s+(.+)$/);
-          if (match) {
-            rigs.push({
-              name: match[1],
-              path: match[2],
-              agents: [],
-            });
+        // Try JSON output (may not be supported for rig list)
+        try {
+          const rigs = await execGTJSON<Rig[]>(['rig', 'list']);
+          return rigs;
+        } catch {
+          // Fall back to text parsing if JSON not supported
+          // Note: rigs might also be available via gt status --json
+          const output = await execGT(['rig', 'list']);
+          
+          const rigs: Rig[] = [];
+          const lines = output.split('\n').filter(line => line.trim());
+          
+          for (const line of lines) {
+            const match = line.match(/^(\S+)\s+(.+)$/);
+            if (match) {
+              rigs.push({
+                name: match[1],
+                path: match[2],
+                agents: [],
+              });
+            }
           }
+          
+          return rigs;
         }
-        
-        return rigs;
       },
       CACHE_TTL.rigs
     );

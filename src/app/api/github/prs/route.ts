@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { execGH } from '@/lib/cli-wrapper';
+import { execGHJSON } from '@/lib/cli-wrapper';
 import { getCachedOrExecute, CACHE_TTL } from '@/lib/cache';
 import type { GitHubPR } from '@/types';
 
@@ -20,8 +20,7 @@ export async function GET(request: NextRequest) {
       async () => {
         const args = ['pr', 'list', '--state', state, '--json', 'number,title,state,author,createdAt,updatedAt,url'];
         
-        const output = await execGH(args);
-        const data = JSON.parse(output);
+        const data = await execGHJSON<any[]>(args);
         
         return data.map((pr: any) => ({
           number: pr.number,

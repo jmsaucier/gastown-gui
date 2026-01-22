@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { execGT } from '@/lib/cli-wrapper';
+import { execGT, execGTJSON } from '@/lib/cli-wrapper';
 import { getCachedOrExecute, CACHE_TTL, invalidateCachePrefix } from '@/lib/cache';
 import type { Convoy } from '@/types';
 
@@ -22,26 +22,8 @@ export async function GET(request: NextRequest) {
         const args = ['convoy', 'list'];
         if (status) args.push('--status', status);
         
-        const output = await execGT(args);
-        
-        // Parse convoy list output
-        const convoys: Convoy[] = [];
-        const lines = output.split('\n').filter(line => line.trim());
-        
-        for (const line of lines) {
-          // Simple parsing - adjust based on actual output format
-          const match = line.match(/^(\w+)\s+(.+)$/);
-          if (match) {
-            convoys.push({
-              id: match[1],
-              name: match[2],
-              issues: [],
-              status: 'active',
-              created: new Date().toISOString(),
-            });
-          }
-        }
-        
+        // Use JSON output
+        const convoys = await execGTJSON<Convoy[]>(args);
         return convoys;
       },
       CACHE_TTL.convoys

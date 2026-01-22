@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
     const status = await getCachedOrExecute<StatusResponse>(
       'status',
       async () => {
-        const result = await execGTJSON(['status', '--json', '--fast']);
+        // execGTJSON automatically adds --json, so we don't need it here
+        const result = await execGTJSON(['status', '--fast']);
         return {
           ...result,
           timestamp: new Date().toISOString(),

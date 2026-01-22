@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { execGT } from '@/lib/cli-wrapper';
+import { execGT, execGTJSON } from '@/lib/cli-wrapper';
 import { getCachedOrExecute, CACHE_TTL, invalidateCachePrefix } from '@/lib/cache';
 import type { Formula } from '@/types';
 
@@ -14,22 +14,8 @@ export async function GET(request: NextRequest) {
     const formulas = await getCachedOrExecute<Formula[]>(
       'formulas',
       async () => {
-        const output = await execGT(['formula', 'list']);
-        
-        const formulas: Formula[] = [];
-        const lines = output.split('\n').filter(line => line.trim());
-        
-        for (const line of lines) {
-          const match = line.match(/^(\S+)\s*-?\s*(.*)$/);
-          if (match) {
-            formulas.push({
-              name: match[1],
-              description: match[2] || '',
-              template: '',
-            });
-          }
-        }
-        
+        // Use JSON output
+        const formulas = await execGTJSON<Formula[]>(['formula', 'list']);
         return formulas;
       },
       CACHE_TTL.formulas

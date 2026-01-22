@@ -12,7 +12,10 @@ import { existsSync } from 'fs';
 const execFileAsync = promisify(execFile);
 
 const HOME = process.env.HOME || os.homedir();
-const GT_ROOT = process.env.GT_ROOT || path.join(HOME, 'gt');
+// GT_ROOT defaults to ~/gt/ - ensure it's always an absolute path
+const GT_ROOT = process.env.GT_ROOT 
+  ? path.resolve(process.env.GT_ROOT.replace(/^~/, HOME))
+  : path.join(HOME, 'gt');
 
 // Common binary paths to check (in order of preference)
 const COMMON_BIN_PATHS = [
@@ -108,6 +111,7 @@ function findCommandSync(command: string): string {
 
 /**
  * Execute a CLI command
+ * For gt commands, defaults to GT_ROOT (~/gt/) as working directory unless explicitly overridden
  */
 export async function execCLI(
   command: string,
@@ -118,14 +122,30 @@ export async function execCLI(
     maxBuffer?: number;
   } = {}
 ): Promise<string> {
+  // Default to GT_ROOT (~/gt/) as working directory for all gt commands
+  // This ensures gt commands always query from ~/gt/ unless a different cwd is provided
   const cwd = options.cwd || GT_ROOT;
   const timeout = options.timeout || 30000;
   const maxBuffer = options.maxBuffer || 10 * 1024 * 1024; // 10MB
 
   // Find the full path to the command
   const commandPath = findCommandSync(command);
-  console.log(`[CLI] Resolved command path: ${commandPath}`);
-  console.log(`[CLI] Executing with args:`, args);
+  
+  // Enhanced debug logging - especially important for gt commands
+  if (command === 'gt') {
+    console.log(`[GT] [CLI] Command path: ${commandPath}`);
+    console.log(`[GT] [CLI] Root directory (cwd): ${cwd}`);
+    console.log(`[GT] [CLI] Full command: gt ${args.join(' ')}`);
+    if (options.cwd) {
+      console.log(`[GT] [CLI] Custom cwd provided (overridden from default ${GT_ROOT})`);
+    } else {
+      console.log(`[GT] [CLI] Using default root directory: ${GT_ROOT}`);
+    }
+  } else {
+    console.log(`[CLI] Resolved command path: ${commandPath}`);
+    console.log(`[CLI] Working directory: ${cwd}`);
+    console.log(`[CLI] Executing: ${command} ${args.join(' ')}`);
+  }
 
   try {
     const { stdout, stderr} = await execFileAsync(commandPath, args, {
@@ -178,8 +198,21 @@ export async function execCLI(
 
 /**
  * Execute gt command
+ * All gt commands default to using ~/gt/ as the working directory unless explicitly overridden
  */
 export async function execGT(args: string[], options?: { cwd?: string; timeout?: number }): Promise<string> {
+  // Determine the root directory that will be used (defaults to ~/gt/)
+  const cwd = options?.cwd || GT_ROOT;
+  
+  // Debug logging for all gt commands
+  console.log(`[GT] Executing: gt ${args.join(' ')}`);
+  console.log(`[GT] Root directory (cwd): ${cwd}`);
+  if (options?.cwd) {
+    console.log(`[GT] Using custom cwd (overridden from default ${GT_ROOT})`);
+  } else {
+    console.log(`[GT] Using default root directory: ${GT_ROOT}`);
+  }
+  
   return execCLI('gt', args, options);
 }
 
@@ -208,7 +241,39 @@ export async function execTmux(args: string[], options?: { cwd?: string; timeout
  * Parse JSON output from CLI command
  */
 export async function execGTJSON<T = any>(args: string[], options?: { cwd?: string; timeout?: number }): Promise<T> {
-  const output = await execGT(args, options);
+  // Ensure --json flag is included
+  const jsonArgs = args.includes('--json') ? args : [...args, '--json'];
+  const output = await execGT(jsonArgs, options);
+  
+  try {
+    return JSON.parse(output);
+  } catch (error) {
+    throw new Error(`Failed to parse JSON output: ${output.substring(0, 200)}`);
+  }
+}
+
+/**
+ * Parse JSON output from bd (bead) command
+ */
+export async function execBDJSON<T = any>(args: string[], options?: { cwd?: string; timeout?: number }): Promise<T> {
+  // Ensure --json flag is included
+  const jsonArgs = args.includes('--json') ? args : [...args, '--json'];
+  const output = await execBD(jsonArgs, options);
+  
+  try {
+    return JSON.parse(output);
+  } catch (error) {
+    throw new Error(`Failed to parse JSON output: ${output.substring(0, 200)}`);
+  }
+}
+
+/**
+ * Parse JSON output from gh (GitHub CLI) command
+ */
+export async function execGHJSON<T = any>(args: string[], options?: { cwd?: string; timeout?: number }): Promise<T> {
+  // GitHub CLI uses --json flag differently, check if already present
+  const jsonArgs = args.includes('--json') ? args : [...args, '--json'];
+  const output = await execGH(jsonArgs, options);
   
   try {
     return JSON.parse(output);

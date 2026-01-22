@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { execGT } from '@/lib/cli-wrapper';
+import { execGT, execGTJSON } from '@/lib/cli-wrapper';
 import { getCachedOrExecute, CACHE_TTL } from '@/lib/cache';
 import type { MailMessage } from '@/types';
 
@@ -23,26 +23,8 @@ export async function GET(request: NextRequest) {
           args.push('--all');
         }
         
-        const output = await execGT(args);
-        
-        const messages: MailMessage[] = [];
-        const lines = output.split('\n').filter(line => line.trim());
-        
-        for (const line of lines) {
-          // Simple parsing - adjust based on actual mail output format
-          const match = line.match(/^(\S+)\s+from\s+(\S+):\s+(.+)$/);
-          if (match) {
-            messages.push({
-              id: match[1],
-              from: match[2],
-              to: 'human',
-              subject: match[3],
-              body: '',
-              timestamp: new Date().toISOString(),
-            });
-          }
-        }
-        
+        // Use JSON output
+        const messages = await execGTJSON<MailMessage[]>(args);
         return messages;
       },
       CACHE_TTL.mail
