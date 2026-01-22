@@ -241,8 +241,47 @@ Check that `gt` CLI is installed and `GT_ROOT` is configured correctly.
 
 MIT
 
+## Gas Town Integration
+
+This GUI is a companion interface for [Gas Town](https://github.com/steveyegge/gastown), a multi-agent workspace manager.
+
+### Command Reference
+
+All available Gas Town CLI commands are documented in:
+- **TypeScript Definitions**: `src/lib/gastown-commands.ts` - Type-safe command definitions with autocomplete
+- **Reference Documentation**: `GASTOWN_REFERENCE.md` - Complete command reference and usage guide
+
+### Updating Command Reference
+
+When Gas Town adds new commands, update the reference:
+
+```bash
+# Discover new commands
+npm run update-commands
+
+# Then manually update src/lib/gastown-commands.ts with new command definitions
+```
+
+See `GASTOWN_REFERENCE.md` for detailed instructions on adding new commands.
+
+### Using Commands in Code
+
+```typescript
+import { gt } from '@/lib/gastown-commands';
+import { execGT } from '@/lib/cli-wrapper';
+
+// Type-safe command building
+const args = gt('convoy')
+  .subcommand('create')
+  .arg('Feature X')
+  .flag('--issues', 'gt-abc12,gt-def34')
+  .build();
+
+await execGT(args);
+```
+
 ## Credits
 
 - Original Gas Town GUI by the community
-- Gas Town by Steve Yegge
+- [Gas Town](https://github.com/steveyegge/gastown) by Steve Yegge
 - Built with Next.js, React, and shadcn/ui

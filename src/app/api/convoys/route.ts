@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { execGT, execGTJSON } from '@/lib/cli-wrapper';
 import { getCachedOrExecute, CACHE_TTL, invalidateCachePrefix } from '@/lib/cache';
+import { gt } from '@/lib/gastown-commands';
 import type { Convoy } from '@/types';
 
 export async function GET(request: NextRequest) {
@@ -19,8 +20,12 @@ export async function GET(request: NextRequest) {
     const convoys = await getCachedOrExecute<Convoy[]>(
       cacheKey,
       async () => {
-        const args = ['convoy', 'list'];
-        if (status) args.push('--status', status);
+        // Use type-safe command builder (see src/lib/gastown-commands.ts)
+        const args = gt('convoy')
+          .subcommand('list')
+          .flag('--status', status || undefined)
+          .flag('--json')
+          .build();
         
         // Use JSON output
         const convoys = await execGTJSON<Convoy[]>(args);
@@ -51,15 +56,13 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const args = ['convoy', 'create', name];
-    
-    if (issues.length > 0) {
-      args.push('--issues', issues.join(','));
-    }
-    
-    if (notify) {
-      args.push('--notify', notify);
-    }
+    // Use type-safe command builder (see src/lib/gastown-commands.ts)
+    const args = gt('convoy')
+      .subcommand('create')
+      .arg(name)
+      .flag('--issues', issues.length > 0 ? issues.join(',') : undefined)
+      .flag('--notify', notify || undefined)
+      .build();
     
     await execGT(args);
     

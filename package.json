@@ -10,7 +10,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "update-commands": "node scripts/update-command-reference.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -55,6 +56,14 @@
   "homepage": "https://github.com/web3dev1337/gastown-gui#readme",
   "bugs": {
     "url": "https://github.com/web3dev1337/gastown-gui/issues"
+  },
+  "related": {
+    "gastown": {
+      "repository": "https://github.com/steveyegge/gastown",
+      "description": "Gas Town - multi-agent workspace manager (source CLI)",
+      "commandReference": "./src/lib/gastown-commands.ts",
+      "documentation": "./GASTOWN_REFERENCE.md"
+    }
   },
   "keywords": [
     "gastown",

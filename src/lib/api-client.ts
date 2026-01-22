@@ -101,6 +101,10 @@ class APIClient {
     return this.post<APISuccessResponse>('/api/convoys', { name, issues, notify });
   }
 
+  async addIssuesToConvoy(convoyId: string, issues: string[]): Promise<APISuccessResponse> {
+    return this.post<APISuccessResponse>(`/api/convoys/${encodeURIComponent(convoyId)}/add`, { issues });
+  }
+
   // === Work/Beads ===
   
   async getWork(params?: { status?: string; rig?: string }): Promise<WorkItem[]> {
