@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+# Architecture & Patterns
+- **Entrypoint:** `server.js` is still the runtime hub; check it before adding new endpoints.
+- **Preferred backend flow:** Route -> Service -> Gateway -> `CommandRunner` -> CLI (`gt`/`bd`/`gh`/`git`/`tmux`).
+- **Module locations:** routes in `server/routes/`, business logic in `server/services/`, CLI wrappers in `server/gateways/`.
+- **Safety layer:** `server/domain/values/` (`SafeSegment`, `AgentPath`) validates user-controlled path/agent inputs.
+- **Transport split:** REST JSON for CRUD + `ws` for live activity/status broadcasts.
+- **Caching pattern:** short-lived caches (`CacheRegistry` and local TTL maps) with mutation-driven invalidation.
+- **Frontend architecture:** feature components in `js/components/`, shared helpers in `js/shared/` and `js/utils/`.
+- **State pattern:** `js/state.js` is the central store; components subscribe/render from shared state.
+- **No build tooling:** static files are served directly; optimize for readable ES modules and low coupling.
+- **Testing mirrors layers:** unit tests mock gateways/services, route tests use Express app wiring, E2E covers UI flow.

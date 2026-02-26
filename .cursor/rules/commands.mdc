@@ -1,0 +1,15 @@
+---
+applyTo: "**"
+---
+
+# Commands & Scripts
+- **Start app:** `npm start` (production-ish) or `npm run dev` (dev mode).
+- **Tests:** `npm test`, `npm run test:unit`, `npm run test:e2e`, `npm run test:watch`, `npm run test:ui`.
+- **Publish gate:** `prepublishOnly` runs full tests; keep test suite green for release.
+- **CLI entrypoint:** `gastown-gui` maps to `bin/cli.js` with commands: `start`, `doctor`, `version`, `help`.
+- **Runtime defaults:** host `127.0.0.1`, port `7667`; override via `--host/--port` or env vars.
+- **Key env vars:** `GASTOWN_PORT`, `HOST`, `GT_ROOT`, `CORS_ORIGINS`, `ALLOW_NULL_ORIGIN`.
+- **Gas Town command caveats:** verify `gt`/`bd` syntax against `CLI-COMPATIBILITY.md` before adding/updating calls.
+- **Known remaps:** `bd done -> bd close`, `bd park -> bd defer`, `bd release -> bd update --status open`.
+- **Formula caveat:** prefer current `formula run --rig` style over legacy `formula use` semantics.
+- **When changing API behavior:** run relevant unit/integration tests and keep `test/mock-server.js` consistent.

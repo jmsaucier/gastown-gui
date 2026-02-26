@@ -1,0 +1,14 @@
+---
+alwaysApply: false
+---
+# Stack Best Practices
+- **Runtime:** Node 18+ ESM (`"type": "module"`); use `import`/`export`, avoid CommonJS in app code.
+- **Backend commands:** execute CLIs through gateways + `CommandRunner.execFile`; avoid shell string execution.
+- **Service contracts:** return structured objects (`ok`, `data`, `raw`, `error`) like existing services/gateways.
+- **Input validation:** validate rig/agent-like segments with `SafeSegment`/`AgentPath` before command calls.
+- **Route behavior:** keep routes thin (HTTP concerns only), push business logic to services.
+- **Frontend rendering:** keep DOM generation in component modules; reuse `js/utils/html.js` escaping helpers.
+- **State updates:** centralize data mutations through `js/state.js`, avoid hidden per-component state stores.
+- **Errors/UX:** surface actionable API failures to users (toasts/modals) with recovery hints when possible.
+- **Tests first for behavior changes:** update unit + route/integration coverage; add E2E only for UI-critical paths.
+- **Mock parity:** if API behavior changes, keep `test/mock-server.js` aligned with real server behavior.

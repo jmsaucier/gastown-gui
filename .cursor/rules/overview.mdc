@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+# Overview
+- **Product:** `gastown-gui` is a browser SPA that controls Gas Town rigs via `gt` and `bd`.
+- **Primary users:** developers/operators managing convoys, beads, formulas, rigs, and service health.
+- **Execution model:** frontend calls `/api/*`; backend wraps CLIs; WebSocket streams live `gt feed`-style updates.
+- **Key workflows:** status checks, sling work to agents, manage beads, run formulas, triage PRs/issues.
+- **Frontend style:** vanilla JS modules in `js/`; no React/Vue, no build pipeline.
+- **Backend style:** Express + modular Gateway -> Service -> Route, with legacy endpoints still in `server.js`.
+- **Core integrations:** `gt`, `bd`, `gh`, `git`, `tmux` CLIs plus local `GT_ROOT` filesystem.
+- **Port/env defaults:** server binds `127.0.0.1:7667` unless overridden by env/CLI.
+- **Compatibility constraint:** CLI behavior follows `CLI-COMPATIBILITY.md` (some legacy command names are remapped).
+- **Testing posture:** Vitest (unit/integration) + Puppeteer (E2E) with a dedicated mock server.

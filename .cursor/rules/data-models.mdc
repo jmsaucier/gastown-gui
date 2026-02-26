@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+# Data Models
+- **Rig:** filesystem-backed environment under `GT_ROOT/<rig>/` with `config.json` metadata.
+- **Agent path value object:** `AgentPath(rig,name)` enforces safe, normalized rig/agent identity.
+- **Bead (issue/work item):** managed by `bd`; common fields include id, title, status, assignee, labels, priority.
+- **Work lifecycle states:** open -> in_progress -> deferred/closed (mapped through `WorkService` + `BDGateway`).
+- **Convoy:** grouped work/agents context managed via `gt convoy` commands and exposed via `/api/convoys`.
+- **Formula:** reusable execution template managed via `/api/formulas` and run by sling/formula flows.
+- **Service health snapshot:** aggregated status from `gt status`, tmux checks, and related CLI outputs.
+- **Frontend store shape:** global state tracks status, rigs, agents, convoys, beads, formulas, feed, and UI flags.
+- **Event payloads:** WebSocket broadcasts typed events (`work_slung`, `work_done`, `escalation`, etc.) with JSON data.
+- **Validation rule:** all path/segment identifiers are constrained to safe chars and max-length boundaries.

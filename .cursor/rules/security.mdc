@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+# Security & Configuration
+- **Command execution safety:** prefer `CommandRunner` (`execFile`) over shell interpolation for CLI access.
+- **Input hardening:** validate user-provided rig/agent/path segments with `SafeSegment` and `AgentPath`.
+- **CORS control:** `createApp()` enforces allowlist origins; configure with `CORS_ORIGINS` and `ALLOW_NULL_ORIGIN`.
+- **Body limits:** JSON payloads are constrained (`express.json({ limit: '1mb' })`) to reduce abuse risk.
+- **Server fingerprinting:** Express `x-powered-by` is disabled in `createApp()`.
+- **Environment-driven config:** `GASTOWN_PORT`, `HOST`, `GT_ROOT`, and CORS vars should be used instead of hardcoded paths.
+- **Secrets handling:** never commit tokens/credentials; avoid exposing env values in logs/errors/responses.
+- **CLI output hygiene:** treat stdout/stderr as untrusted text; parse defensively and sanitize UI rendering.
+- **Transport assumptions:** API is local-first (`127.0.0.1` default); opening to wider hosts requires explicit risk review.
+- **Change safety:** security-sensitive behavior changes require matching unit/integration coverage updates.

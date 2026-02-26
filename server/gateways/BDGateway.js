@@ -48,7 +48,7 @@ export class BDGateway {
   }
 
   async create({ title, description, priority, labels } = {}) {
-    const args = ["--no-daemon", "new", `"${title}"`];
+    const args = ["--no-daemon", "create", `"${title}"`];
     if (description) args.push("--description", description);
     if (priority) args.push("--priority", priority);
     if (Array.isArray(labels)) {

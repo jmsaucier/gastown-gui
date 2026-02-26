@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+# Anti-Patterns
+- Do not add new CLI calls directly in routes/components when a gateway/service layer exists.
+- Do not use `exec`, `spawn` with shell strings, or concatenated command text for user-provided inputs.
+- Do not bypass `SafeSegment`/`AgentPath` for rig, agent, or other path-like parameters.
+- Do not hardcode old CLI forms (`bd done`, `bd park`, `formula use`) without checking compatibility mapping.
+- Do not duplicate endpoint logic in both `server.js` and refactored route modules.
+- Do not trust CLI output shape blindly; handle non-JSON/partial output and include fallback parsing.
+- Do not leak sensitive paths/tokens/full env in logs or API responses.
+- Do not add long-lived in-memory caches without invalidation on mutating actions.
+- Do not mutate shared frontend state ad hoc from many modules; route changes through `js/state.js`.
+- Do not update API behavior without matching updates to tests and `test/mock-server.js`.

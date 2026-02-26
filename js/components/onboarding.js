@@ -126,7 +126,16 @@ const ONBOARDING_STEPS = [
     action: async () => {
       const name = document.getElementById('onboard-rig-name').value.trim();
       const url = document.getElementById('onboard-rig-url').value.trim();
-      return await api.addRig(name, url);
+      try {
+        return await api.addRig(name, url);
+      } catch (err) {
+        const message = String(err?.message || '');
+        if (message.toLowerCase().includes('rig already exists')) {
+          await api.removeRig(name);
+          return await api.addRig(name, url);
+        }
+        throw err;
+      }
     },
   },
   {
